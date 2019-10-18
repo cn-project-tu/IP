@@ -30,7 +30,7 @@ struct ip_header
 //IP packet
 struct ip_packet
 {
-    NetIpHdr ipHdr; 
+    NetIpHdr ipHdr;
     uint8_t  data[IP_DATA_LEN];
 
 };
