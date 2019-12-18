@@ -1,7 +1,7 @@
 //hi mandeep
 struct tcp_header
 {
- uint16_t   source_port;  //source port(16)
+ uint16_t source_port;  //source port(16)
  unit16_t dest_port;  //Destination port(16)
  unit32_t sequ_number;  //dequence number(32)
  unit32_t ack_number; //acknowledgement number(32)
@@ -20,7 +20,7 @@ struct tcp_header
 
 
 // we have to find what is data length
-#define TCP_DATA_LEN
+#define TCP_DATA_LEN  
 
 
 

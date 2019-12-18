@@ -1,11 +1,26 @@
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include"TCP_header.h"
+/*********************Data tyope ******************
+uint8_t == 8 byte integer 
+uint16_t == 16 byte integer
+uint32_t == 32 byte integer
+******************************************************/
+
+
+/**************IP to Decimal converter***********************/
+int ip_address_converter()
+{
+
+}
+
+
 
 
 struct ip_header
 {
-    uint8_t   header_ver_len;   /* Header version 4 bit and header length 4. */
+    uint8_t   header_ver_len;   /* Header version 4 bit and header length 4. */ 
     uint8_t   service_esn;    /*DSCP(6) and ECN(2) Service type. */
     uint16_t  total_length;     /*total Length of datagram (16bytes). */
     uint16_t  ident;      /* Unique packet identification no (16bytes). */
@@ -25,12 +40,13 @@ struct ip_header
 
 
 // we have to put the value of MTU
-#define IP_DATA_LEN     (MTU - IP_HEADER_LEN)
+#define IP_DATA_LEN   (MTU - IP_HEADER_LEN)
 
 //IP packet
 struct ip_packet
 {
-    NetIpHdr ipHdr;
+    struct ip_header ipHdr;
+    struct tcp_header tcHdr;
     uint8_t  data[IP_DATA_LEN];
 
 };
