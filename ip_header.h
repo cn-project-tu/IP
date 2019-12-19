@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include<stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include"TCP_header.h"
@@ -8,17 +9,7 @@ uint16_t == 16 byte integer
 uint32_t == 32 byte integer
 ******************************************************/
 
-
-/**************IP to Decimal converter***********************/
-int ip_address_converter()
-{
-
-}
-
-
-
-
-struct ip_header
+struct ip_header 
 {
     uint8_t   header_ver_len;   /* Header version 4 bit and header length 4. */ 
     uint8_t   service_esn;    /*DSCP(6) and ECN(2) Service type. */
@@ -36,9 +27,9 @@ struct ip_header
 };
 
 #define IP_VER_HLEN     0x45   //what is this
-#define IP_HEADER_LEN   sizeof(NetIpHdr)
+#define IP_HEADER_LEN   sizeof(ip_header)
 
-
+#define MTU 1024
 // we have to put the value of MTU
 #define IP_DATA_LEN   (MTU - IP_HEADER_LEN)
 
@@ -46,7 +37,5 @@ struct ip_header
 struct ip_packet
 {
     struct ip_header ipHdr;
-    struct tcp_header tcHdr;
-    uint8_t  data[IP_DATA_LEN];
-
+    struct tcp_packet *tcp_packet;
 };
