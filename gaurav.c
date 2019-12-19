@@ -6,6 +6,9 @@
 
 int main()
 {
+   
+
+
     /********IP Packet filling ***************/
     struct ip_packet packet;
     packet->ipHdr.header_ver_len = IP_VER_HLEN;
@@ -30,6 +33,17 @@ int main()
     packet->tcpHdr.checksum=8889;/**tcp checksum***/
     packet->tcpHdr.urgent_pointer=0;
     
+
+     int tcp_socket=socket(AF_INET,SOCK_RAW,IPPROTO_RAW);
+     struct sockaddr_in addr;
+     addr.sin_family=AF_INET;
+     addr.sin_port=htons(port_no);
+     addr.sin_addr.s.addr =inet_addr("127.0.0.1");
+
+
+     sendto(tcp_socket,&packet,sizeof(packet),0,(struct sockaddr *)&addr,sizeof(addr));
+     
+     
 
     
 
