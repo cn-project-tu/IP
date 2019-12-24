@@ -1,52 +1,189 @@
-#include<stdio.h>
 #include<netinet/tcp.h>
 #include<netinet/ip.h>
 #include"ip_header.h"
+#include"check_sum.h"
 #include<sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#include<netinet/in.h>
+#include<arpa/inet.h>
+#include<unistd.h>
+#include<error.h>
 
-int main()
+//#include <linux/if_packet.h>
+#include <net/ethernet.h>
+
+#include <sys/types.h>
+#include <netdb.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+
+#include<sys/ioctl.h>
+#include<net/if.h>
+
+#include<netpacket/packet.h>
+#include<getopt.h>
+
+#include<time.h>
+
+#define PACK_LEN 8192
+int main(int argc,char *argv[])
 {
+    if(argc !=5)
+    {
+        printf("less argument ");
+        exit(-1);
+    }
+    // use for buffer containing the raw data gram for both when it recived and sent
+    
+    
+    
+    
+
+
+    int ip_len=sizeof(struct ip_header)+sizeof(struct tcp_packet);
+    int tcp_len=5;
+    int ident_no=10;
+    int source_port=htons(atoi(argv[2])),dest_port=htons(atoi(argv[4]));
+    int port_no=80;
+    int one=1;
+    struct ifreq ifr;
+    struct sockaddr_ll sll;
+    memset(&sll,0,sizeof(sll));
+    
+    int tcp_socket;
+    tcp_socket=socket(PF_INET,SOCK_RAW,IPPROTO_UDP);
+    if(tcp_socket<0)
+    {
+        perror("Error in creating socket......");
+        exit(-1);
+    }
+    else
+    {
+        printf("Raw Socket created...%d.......\n",tcp_socket);
+    }
+   /* //char packet[]="eth1";
+    strncpy(ifr.ifr_name,"eth1",sizeof(ifr.ifr_name));
+    if(ioctl(tcp_socket,SIOCGIFINDEX,&ifr)==-1)
+    {
+        perror("\nioctl failed :");
+        exit(-1);
+    }
+    else
+    {
+        printf("ioctl OK\n");
+    }
+    
+    
+    sll.sll_family=AF_PACKET;
+    sll.sll_ifindex=ifr.ifr_ifindex;
+    sll.sll_protocol=htons(ETH_P_ALL);
+
+
+    if(bind(tcp_socket,(struct sockaddr *)&sll,sizeof(sll))==-1)
+    {
+        perror("\nError in binding :");
+        exit(-1);
+    }
+    else{
+    
+        printf("binding succesfull\n");
+    }
+    */
    
-    int ip_len=5,tcp_len=5;
-    int ident_no=1;
-    int source_port=5000,dest_port=80;
-    int port_no;
 
-
-    /********IP Packet filling ***************/
-    struct ip_packet *packet;
+  //  ********IP Packet filling *************** /
+    char buffer[PACK_LEN];
+    struct ip_packet *packet=(struct ip_packet *)buffer;                   
+    
+    memset(buffer,0,PACK_LEN);
+    //configure source address
+    struct sockaddr_in source_addr,dest_addr;
+    source_addr.sin_family=AF_INET;
+    source_addr.sin_port=source_port; 
+    source_addr.sin_addr.s_addr =inet_addr(argv[1]);
+    if(inet_pton(AF_INET,argv[1],&source_addr.sin_addr)!=1){
+        perror("Error in src-ip");
+        exit(-1);
+       }else{ printf("source address ok:\n"); }
+    // configure destination address
+    dest_addr.sin_family=AF_INET;
+    dest_addr.sin_port=dest_port; 
+    dest_addr.sin_addr.s_addr =inet_addr(argv[1]);
+    if(inet_pton(AF_INET,argv[3],&source_addr.sin_addr)!=1){
+        perror("Error in dest-ip");
+        exit(-1);
+    }
+    else
+    { printf("dest address ok:\n"); }
+    
+    // configuration succefull
+    
+    
+    
     packet->ipHdr.header_ver_len = IP_VER_HLEN;
-    packet->ipHdr.service_esn=0x00;
+    packet->ipHdr.service_esn=0x00;         
     packet->ipHdr.total_length=htons(ip_len);
-    packet->ipHdr.ident=htons(ident_no);
-    packet->ipHdr.flag_offset=0x00;
-    packet->ipHdr.ttl=0x10;
-    packet->ipHdr.protocol=IPPROTO_TCP;
-    packet->ipHdr.checksum=14536;
-    packet->ipHdr.src_addr=inet_addr("10.55.1.39");
-    packet->ipHdr.dest_addr=inet_addr("127.0.0.1");
-
-    /***************Tcp packet filling *****************/
-    packet->tcp_packet->header.source_port=htons(source_port);
-    packet->tcp_packet->header.dest_port=htons(dest_port);
-    packet->tcp_packet->header.sequ_number=1;
-    packet->tcp_packet->header.ack_number=2;
-    packet->tcp_packet->header.header_len=htons(tcp_len);
-    packet->tcp_packet->header.flag_bit=2;
-    packet->tcp_packet->header.window_size=htons(512);
-    packet->tcp_packet->header.checksum=8889;/**tcp checksum***/
-    packet->tcp_packet->header.urgent_pointer=0;
-
-
-     int tcp_socket=socket(AF_INET,SOCK_RAW,IPPROTO_RAW);
-     struct sockaddr_in addr;
-     addr.sin_family=AF_INET;
-     addr.sin_port=htons(port_no);
-     addr.sin_addr.s_addr =inet_addr("127.0.0.1");
-
-
-     sendto(tcp_socket,&packet,sizeof(packet),0,(struct sockaddr *)&addr,sizeof(addr));
-
+    packet->ipHdr.ident=htons(ident_no);          
+    packet->ipHdr.flag_offset=0x0;                 
+    packet->ipHdr.ttl=0x10;                 
+    packet->ipHdr.protocol=0x06;            
+    packet->ipHdr.checksum=0; 
+    packet->ipHdr.src_addr=inet_addr(argv[1]);
+    packet->ipHdr.dest_addr=inet_addr(argv[1]);
+    
+    
+//  *************** TCP header filling ********************                                                            
+    
+    
+    packet->tcp_packet.header.source_port=htons(atoi(argv[2]));
+    packet->tcp_packet.header.dest_port=htons(atoi(argv[4]));
+    packet->tcp_packet.header.sequ_number=htonl(1);               
+    packet->tcp_packet.header.ack_number=0;           
+    packet->tcp_packet.header.header_len=tcp_len;
+    packet->tcp_packet.header.flag_bit=2;    //  check krna hai
+    packet->tcp_packet.header.window_size=htons(1024);
+    packet->tcp_packet.header.checksum=0;    //  tcp checksum Done by kernel
+    packet->tcp_packet.header.urgent_pointer=0;
+    
+  // ******************* Ip header calculation *******************                     
+    packet->ipHdr.checksum=ip_check_sum((uint16_t *)buffer,(sizeof(struct ip_header)+sizeof(struct tcp_header)));
+    
+    
+    
+  // **********************************************************
+    
+    printf("configure socket\n");
+    int setsock_no=setsockopt(tcp_socket,IPPROTO_IP,IP_HDRINCL,&one,sizeof(one));
+    if(setsock_no<0)
+    {
+        perror("Error..........in setsockopt()\n");
+        exit(-1);
+    }
+    else
+    {
+        printf("setsockopt() is OK......:\n");
+    }
+    
+    
+    
+//    ***************************************************************
+    
+    
+    
+    
+    int send_no=sendto(tcp_socket,&packet,sizeof(packet),0,(struct sockaddr *)&source_addr,sizeof(source_addr));
+    if(send_no<0)
+    {
+        perror("errro in sending........:\n");
+        exit(-1);
+    }
+    else
+    {
+        printf("message sending succes.....:\n");
+        sleep(2);
+    }
+    
+    close(tcp_socket);
+    return 0;
 }
