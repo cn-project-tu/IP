@@ -7,7 +7,7 @@
 #include<arpa/inet.h>
 #include<unistd.h>
 #include<error.h>
-
+#include"packet.h"
 //#include <linux/if_packet.h>
 #include <net/ethernet.h>
 
@@ -63,13 +63,14 @@ int main(int argc,char *argv[])
     }
     //configure source address
     struct sockaddr_in source_addr,dest_addr;
-    source_addr.sin_family=AF_INET;
+   /* source_addr.sin_family=AF_INET;
     source_addr.sin_port=source_port; 
     source_addr.sin_addr.s_addr =inet_addr(argv[1]);
     if(inet_pton(AF_INET,argv[1],&source_addr.sin_addr)!=1){
         perror("Error in src-ip");
         exit(-1);
-       }else{ printf("source address ok:\n"); }
+       }else{ printf("source address ok:\n"); }*/
+       conf_address(&source_addr,argv[1],argv[2]);
     // configure destination address
     dest_addr.sin_family=AF_INET;
     dest_addr.sin_port=dest_port; 

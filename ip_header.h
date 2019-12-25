@@ -27,11 +27,3 @@ struct ip_header
 
 #define IP_VER_HLEN     0x45  
 #define IP_HEADER_LEN   5
-
-//IP packet
-struct ip_packet
-{
-    struct ip_header *ipHdr;
-    struct tcp_packet *tcpHdr;
-    char data[DATA_LEN];
-};
