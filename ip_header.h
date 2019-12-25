@@ -8,7 +8,7 @@ uint8_t == 8 byte integer
 uint16_t == 16 byte integer
 uint32_t == 32 byte integer
 ******************************************************/
-
+#define DATA_LEN 1024
 struct ip_header 
 {
     uint8_t   header_ver_len;   /* Header version 4 bit and header length 4. */ 
@@ -27,14 +27,11 @@ struct ip_header
 
 #define IP_VER_HLEN     0x45  
 #define IP_HEADER_LEN   5
-/*
-#define MTU 10
-// we have to put the value of MTU
-#define IP_DATA_LEN   (MTU - IP_HEADER_LEN)
-*/
+
 //IP packet
 struct ip_packet
 {
-    struct ip_header ipHdr;
-    struct tcp_packet tcp_packet;
+    struct ip_header *ipHdr;
+    struct tcp_packet *tcpHdr;
+    char data[DATA_LEN];
 };

@@ -35,11 +35,6 @@ int main(int argc,char *argv[])
         exit(-1);
     }
     // use for buffer containing the raw data gram for both when it recived and sent
-    
-    
-    
-    
-
 
     int ip_len=sizeof(struct ip_header)+sizeof(struct tcp_packet);
     int tcp_len=5;
@@ -62,39 +57,8 @@ int main(int argc,char *argv[])
     {
         printf("Raw Socket created...%d.......\n",tcp_socket);
     }
-   /* //char packet[]="eth1";
-    strncpy(ifr.ifr_name,"eth1",sizeof(ifr.ifr_name));
-    if(ioctl(tcp_socket,SIOCGIFINDEX,&ifr)==-1)
-    {
-        perror("\nioctl failed :");
-        exit(-1);
-    }
-    else
-    {
-        printf("ioctl OK\n");
-    }
-    
-    
-    sll.sll_family=AF_PACKET;
-    sll.sll_ifindex=ifr.ifr_ifindex;
-    sll.sll_protocol=htons(ETH_P_ALL);
-
-
-    if(bind(tcp_socket,(struct sockaddr *)&sll,sizeof(sll))==-1)
-    {
-        perror("\nError in binding :");
-        exit(-1);
-    }
-    else{
-    
-        printf("binding succesfull\n");
-    }
-    */
-   
-
   //  ********IP Packet filling *************** /
-    char buffer[PACK_LEN];
-    struct ip_packet *packet=(struct ip_packet *)buffer;                   
+    struct ip_packet *packet;                   
     
     memset(buffer,0,PACK_LEN);
     //configure source address
@@ -121,35 +85,36 @@ int main(int argc,char *argv[])
     
     
     
-    packet->ipHdr.header_ver_len = IP_VER_HLEN;
-    packet->ipHdr.service_esn=0x00;         
-    packet->ipHdr.total_length=htons(ip_len);
-    packet->ipHdr.ident=htons(ident_no);          
-    packet->ipHdr.flag_offset=0x0;                 
-    packet->ipHdr.ttl=0x10;                 
-    packet->ipHdr.protocol=0x06;            
-    packet->ipHdr.checksum=0; 
-    packet->ipHdr.src_addr=inet_addr(argv[1]);
-    packet->ipHdr.dest_addr=inet_addr(argv[1]);
+    packet->ipHdr->header_ver_len = IP_VER_HLEN;
+    packet->ipHdr->service_esn=16;         
+    packet->ipHdr->total_length=sizeof(struct ip_header)+sizeof(struct tcp_packet);
+    packet->ipHdr->ident=htons(54321);          
+    packet->ipHdr->flag_offset=0;                 
+    packet->ipHdr->ttl=64;                 
+    packet->ipHdr->protocol=6;            
+    packet->ipHdr->checksum=0; 
+    packet->ipHdr->src_addr=inet_addr(argv[1]);
+    packet->ipHdr->dest_addr=inet_addr(argv[3]);
     
     
 //  *************** TCP header filling ********************                                                            
     
     
-    packet->tcp_packet.header.source_port=htons(atoi(argv[2]));
-    packet->tcp_packet.header.dest_port=htons(atoi(argv[4]));
-    packet->tcp_packet.header.sequ_number=htonl(1);               
-    packet->tcp_packet.header.ack_number=0;           
-    packet->tcp_packet.header.header_len=tcp_len;
-    packet->tcp_packet.header.flag_bit=2;    //  check krna hai
-    packet->tcp_packet.header.window_size=htons(1024);
-    packet->tcp_packet.header.checksum=0;    //  tcp checksum Done by kernel
-    packet->tcp_packet.header.urgent_pointer=0;
+    packet->tcpHdr->source_port=htons(atoi(argv[2]));
+    packet->tcpHdr->dest_port=htons(atoi(argv[4]));
+    packet->tcpHdr->sequ_number=htonl(1);               
+    packet->tcpHdr->ack_number=0;           
+    packet->tcpHdr->header_len=tcp_len;
+    packet->tcpHdr->bit_sin=1;
+    packet->tcpHdr->bit_fin=0;
+    packet->tcpHdr->window_size=htons(1024);
+    packet->tcpHdr->checksum=0;    //  tcp checksum Done by kernel
+    packet->tcpHdr->urgent_pointer=0;
     
   // ******************* Ip header calculation *******************                     
-    packet->ipHdr.checksum=ip_check_sum((uint16_t *)buffer,(sizeof(struct ip_header)+sizeof(struct tcp_header)));
+    packet->ipHdr->checksum=ip_check_sum((uint16_t *)buffer,(sizeof(struct ip_header)+sizeof(struct tcp_header)));
     
-    
+    fgets(packet->data,1024,stdin);
     
   // **********************************************************
     
