@@ -35,7 +35,7 @@ int main(int argc,char *argv[])
         exit(-1);
     }
     //Create socket 
-    int tcp_socket=socket_create();
+    int tcp_socket=socket_create_udp();
     //configure source address,destination address;
     struct sockaddr_in source_addr,dest_addr;
     conf_address(&source_addr,argv[1],argv[2]);
@@ -64,9 +64,8 @@ int main(int argc,char *argv[])
     
     
 //    ************************SYN PACKET SENDING***************************************
-    create_raw_packet(buffer,&buffer_length,SYN_PACKET,&source_addr,&dest_addr,data,data_len);
+    create_raw_packet_udp(buffer,&buffer_length,SYN_PACKET,&source_addr,&dest_addr,data,data_len);
     drop_packet(buffer);            //if packet is not created;means size is less then 0
-    while(1){
     int send_no=sendto(tcp_socket,buffer,buffer_length,0,(struct sockaddr *)&source_addr,sizeof(source_addr));
     if(send_no<0)
     {
@@ -77,7 +76,6 @@ int main(int argc,char *argv[])
     {
         printf("message sending succes.....:\n");
         sleep(2);
-    }
     }
     close(tcp_socket);
     return 0;

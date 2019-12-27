@@ -21,4 +21,16 @@ struct tcp_header
 
 // we have to find what is data length
 #define TCP_DATA_LEN 1  
+//hi mandeep
+struct udp_header
+{
+ uint16_t source_port;  //source port(16)
+ uint16_t dest_port;  //Destination port(16)
+ uint16_t length;
+ uint16_t checksum;  //checksum(16) to be computed
+ 
+/*it may be possible option file be required */
 
+// uint32_t options;    //option field may not be 32 so to compromise the remaining
+                   //bits we can use padding
+};
